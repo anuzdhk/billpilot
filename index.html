@@ -101,6 +101,10 @@
             </label>
             <label>Issue date <input type="date" id="f-issue" /></label>
             <label>Due date <input type="date" id="f-due" /></label>
+            <div class="span-2 accent-field">
+              <span class="field-lbl">Invoice accent color</span>
+              <div class="swatches" id="accent-swatches"></div>
+            </div>
           </div>
         </details>
 
@@ -111,7 +115,8 @@
             <label class="span-2">Address <input type="text" id="f-from-address" placeholder="123 Anywhere St., Any City, ST 12345" /></label>
             <label>Email <input type="email" id="f-from-email" placeholder="hello@yourstudio.com" /></label>
             <label>Phone <input type="text" id="f-from-phone" placeholder="+1 234 567 890" /></label>
-            <label class="span-2">Website <input type="text" id="f-from-website" placeholder="www.yourstudio.com" /></label>
+            <label>Website <input type="text" id="f-from-website" placeholder="www.yourstudio.com" /></label>
+            <label>PAN number <input type="text" id="f-from-pan" placeholder="e.g. 601234567" /></label>
             <label class="span-2 logo-row">Logo (optional)
               <span class="logo-controls">
                 <input type="file" id="f-logo" accept="image/*" />
@@ -133,6 +138,9 @@
 
         <details open class="form-section">
           <summary>Line items</summary>
+          <div class="items-head">
+            <span>Date</span><span>Description</span><span>Rate</span><span>Qty</span><span></span>
+          </div>
           <div id="items-list"></div>
           <button type="button" class="btn btn-ghost btn-add" id="btn-add-item">+ Add item</button>
         </details>
@@ -190,6 +198,7 @@
             <div class="pv-from">
               <p class="pv-name" id="pv-from-name"></p>
               <p id="pv-from-address"></p>
+              <p id="pv-from-pan"></p>
             </div>
             <div class="pv-to">
               <p class="pv-billto">Bill to :</p>
@@ -241,6 +250,9 @@
 
           <p class="pv-thanks" id="pv-thanks">THANK YOU!</p>
           <div class="paper-band-bottom"></div>
+        </div>
+        <div class="preview-actions no-print">
+          <button class="btn btn-accent btn-wide" id="btn-pdf-2" type="button">⬇ Download PDF</button>
         </div>
       </div>
     </div>

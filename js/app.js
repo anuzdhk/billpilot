@@ -36,6 +36,21 @@
   var CURRENCIES = buildCurrencyList();
   var POPULAR = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY", "CNY", "NPR"];
 
+  /* ---------------- Invoice accent colors ---------------- */
+  var ACCENTS = [
+    { name: "Beige", val: "#b3924f" },
+    { name: "Black", val: "#2a2a28" },
+    { name: "Red", val: "#c0392b" },
+    { name: "Blue", val: "#2f6db4" },
+    { name: "Green", val: "#2e7d4f" },
+    { name: "Purple", val: "#7d4fa8" },
+    { name: "Teal", val: "#2a8f8f" },
+    { name: "Orange", val: "#d97b29" },
+    { name: "Pink", val: "#c9558e" },
+    { name: "Navy", val: "#1b2432" }
+  ];
+  var DEFAULT_ACCENT = ACCENTS[0].val;
+
   function fmtMoney(amount, code) {
     if (!isFinite(amount)) amount = 0;
     try {
@@ -101,12 +116,13 @@
       id: uid(),
       number: nextInvoiceNumber(),
       status: "draft",
+      accent: biz.accent || DEFAULT_ACCENT,
       currency: biz.currency || "USD",
       issueDate: todayISO(0),
       dueDate: todayISO(14),
       from: {
         name: biz.name || "", address: biz.address || "", email: biz.email || "",
-        phone: biz.phone || "", website: biz.website || "", logo: biz.logo || ""
+        phone: biz.phone || "", website: biz.website || "", pan: biz.pan || "", logo: biz.logo || ""
       },
       to: { name: "", address: "", email: "", phone: "" },
       items: [{ date: todayISO(0), desc: "", qty: 1, price: 0 }],
@@ -261,6 +277,7 @@
   function fillForm() {
     $("f-number").value = current.number;
     $("f-currency").value = current.currency;
+    updateSwatchSelection();
     $("f-issue").value = current.issueDate;
     $("f-due").value = current.dueDate;
     $("inv-status").value = current.status;
@@ -270,6 +287,7 @@
     $("f-from-email").value = current.from.email;
     $("f-from-phone").value = current.from.phone;
     $("f-from-website").value = current.from.website;
+    $("f-from-pan").value = current.from.pan || "";
     $("f-logo-clear").classList.toggle("hidden", !current.from.logo);
 
     $("f-to-name").value = current.to.name;
@@ -334,6 +352,7 @@
     current.from.email = $("f-from-email").value;
     current.from.phone = $("f-from-phone").value;
     current.from.website = $("f-from-website").value;
+    current.from.pan = $("f-from-pan").value;
 
     current.to.name = $("f-to-name").value;
     current.to.address = $("f-to-address").value;
@@ -362,6 +381,8 @@
     var t = calc(inv);
     var cur = inv.currency;
 
+    $("invoice-paper").style.setProperty("--pv-accent", inv.accent || DEFAULT_ACCENT);
+
     setText("pv-number", inv.number || "—");
     setText("pv-issue", fmtDate(inv.issueDate));
     $("pv-due-row").style.display = inv.dueDate ? "" : "none";
@@ -373,6 +394,7 @@
 
     setText("pv-from-name", inv.from.name || "Your Business Name");
     setText("pv-from-address", inv.from.address);
+    setText("pv-from-pan", inv.from.pan ? "PAN : " + inv.from.pan : "");
     setText("pv-to-name", inv.to.name || "Client Name");
     setText("pv-to-address", inv.to.address);
     setText("pv-to-contact", [inv.to.email, inv.to.phone].filter(Boolean).join(" · "));
@@ -450,8 +472,10 @@
     // remember business defaults for next time
     saveBusiness({
       name: current.from.name, address: current.from.address, email: current.from.email,
-      phone: current.from.phone, website: current.from.website, logo: current.from.logo,
-      currency: current.currency, taxLabel: current.taxLabel, taxRate: current.taxRate,
+      phone: current.from.phone, website: current.from.website, pan: current.from.pan,
+      logo: current.from.logo,
+      currency: current.currency, accent: current.accent,
+      taxLabel: current.taxLabel, taxRate: current.taxRate,
       payMethod: current.payMethod, bankName: current.bankName, account: current.account
     });
 
@@ -479,6 +503,32 @@
   /* ============================================================
      Wire-up
      ============================================================ */
+  function buildSwatches() {
+    var wrap = $("accent-swatches");
+    ACCENTS.forEach(function (a) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "swatch";
+      b.style.background = a.val;
+      b.title = a.name;
+      b.setAttribute("data-color", a.val);
+      b.addEventListener("click", function () {
+        current.accent = a.val;
+        updateSwatchSelection();
+        markDirty();
+        renderPreview();
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  function updateSwatchSelection() {
+    var sel = (current && current.accent) || DEFAULT_ACCENT;
+    document.querySelectorAll("#accent-swatches .swatch").forEach(function (b) {
+      b.classList.toggle("selected", b.getAttribute("data-color") === sel);
+    });
+  }
+
   function populateCurrencySelect() {
     var sel = $("f-currency");
     var popGroup = document.createElement("optgroup");
@@ -505,6 +555,7 @@
 
   function init() {
     populateCurrencySelect();
+    buildSwatches();
 
     // nav
     $("nav-new").addEventListener("click", function () { openEditor(null); });
@@ -522,12 +573,14 @@
 
     // editor actions
     $("btn-save").addEventListener("click", persistCurrent);
-    $("btn-pdf").addEventListener("click", function () {
+    function downloadPdf() {
       persistCurrent();
       document.title = (current.number || "invoice") + " — BillPilot";
       window.print();
       document.title = "BillPilot — Simple Invoice Maker for Freelancers";
-    });
+    }
+    $("btn-pdf").addEventListener("click", downloadPdf);
+    $("btn-pdf-2").addEventListener("click", downloadPdf);
     $("btn-add-item").addEventListener("click", function () {
       current.items.push({ date: todayISO(0), desc: "", qty: 1, price: 0 });
       markDirty();
