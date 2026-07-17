@@ -508,6 +508,56 @@ input[type="date"] { color-scheme: dark; }
   color: var(--ink);
 }
 
+/* ---------------- Mobile ---------------- */
+@media (max-width: 640px) {
+  .view { padding: 18px 14px 40px; }
+
+  /* topbar: drop the tagline, tighten spacing */
+  .topbar-inner { padding: 12px 14px; gap: 10px; }
+  .brand-tag { display: none; }
+  .brand-logo { height: 18px; }
+  .nav-btn { padding: 8px 8px; font-size: .9rem; }
+  .btn { padding: 8px 14px; font-size: .9rem; }
+
+  .hero { padding: 20px 0 6px; }
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; margin: 22px 0 26px; }
+  .stat-card { padding: 12px 14px; }
+  .stat-value { font-size: 1.15rem; word-break: break-word; }
+
+  /* invoice list: scroll the table sideways instead of the page */
+  .list-head { padding: 14px; }
+  .list-tools { width: 100%; flex-direction: column; }
+  #invoice-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .invoice-table { min-width: 620px; }
+  .invoice-table th, .invoice-table td { padding: 10px 12px; }
+
+  /* form: single column */
+  .form-panel { padding: 4px 12px 14px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-2 .span-2 { grid-column: auto; }
+
+  /* line items: description on its own row, then date / rate / qty */
+  .items-head { display: none; }
+  .item-row {
+    grid-template-columns: 1.3fr 1fr .8fr 34px;
+    grid-template-areas:
+      "desc desc desc desc"
+      "date rate qty  x";
+    row-gap: 6px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .item-row input[data-f="desc"] { grid-area: desc; }
+  .item-row input[data-f="date"] { grid-area: date; }
+  .item-row input[data-f="price"] { grid-area: rate; }
+  .item-row input[data-f="qty"] { grid-area: qty; }
+  .item-remove { grid-area: x; }
+
+  .editor-toolbar { gap: 8px; }
+  .preview-actions { margin-top: 10px; }
+}
+
 /* ---------------- Footer ---------------- */
 .site-footer {
   text-align: center;
