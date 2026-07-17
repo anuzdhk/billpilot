@@ -23,10 +23,6 @@ python -m http.server 8720
 
 …or just open `index.html`.
 
-## Deploying
-
-See **[DEPLOY.md](DEPLOY.md)** for a step-by-step guide to hosting BillPilot on Vercel (free, ~2 minutes).
-
 ## Stack
 
 Plain HTML + CSS + vanilla JavaScript. No frameworks, no dependencies.
