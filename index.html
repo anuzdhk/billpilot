@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BillPilot — Simple Invoice Maker for Freelancers</title>
+  <meta name="description" content="BillPilot — create beautiful invoices in seconds. Every currency, live preview, PDF download. Free & private: everything stays in your browser." />
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar no-print">
+    <div class="topbar-inner">
+      <a class="brand" href="#" id="brand-home">
+        <img src="img/billpilot.svg" alt="BillPilot" class="brand-logo" />
+        <span class="brand-tag">Simple Invoice Maker</span>
+      </a>
+      <nav class="topnav">
+        <button class="nav-btn" id="nav-invoices" type="button">My Invoices</button>
+        <button class="btn btn-accent" id="nav-new" type="button">+ New Invoice</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ DASHBOARD / INVOICE LIST ============ -->
+  <main id="view-list" class="view no-print">
+    <section class="hero">
+      <h1>Invoices that fly out the door.</h1>
+      <p>Create a professional invoice in under a minute — any currency on Earth, live preview,
+         one-click PDF. Free forever, and your data never leaves your browser.</p>
+    </section>
+
+    <section class="stats-row" id="stats-row">
+      <div class="stat-card"><span class="stat-label">Total invoiced</span><span class="stat-value" id="stat-total">—</span></div>
+      <div class="stat-card"><span class="stat-label">Outstanding</span><span class="stat-value" id="stat-outstanding">—</span></div>
+      <div class="stat-card"><span class="stat-label">Paid</span><span class="stat-value" id="stat-paid">—</span></div>
+      <div class="stat-card"><span class="stat-label">Invoices</span><span class="stat-value" id="stat-count">0</span></div>
+    </section>
+
+    <section class="list-wrap">
+      <div class="list-head">
+        <h2>My Invoices</h2>
+        <div class="list-tools">
+          <input type="search" id="list-search" placeholder="Search client or number…" />
+          <select id="list-filter">
+            <option value="all">All statuses</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="paid">Paid</option>
+            <option value="overdue">Overdue</option>
+          </select>
+        </div>
+      </div>
+      <div id="invoice-table-wrap">
+        <table class="invoice-table" id="invoice-table">
+          <thead>
+            <tr><th>Number</th><th>Client</th><th>Issued</th><th>Due</th><th>Status</th><th class="ta-r">Total</th><th></th></tr>
+          </thead>
+          <tbody id="invoice-rows"></tbody>
+        </table>
+        <div class="empty-state" id="empty-state">
+          <div class="empty-art">📄</div>
+          <h3>No invoices yet</h3>
+          <p>Create your first invoice — it takes less than a minute.</p>
+          <button class="btn btn-accent" id="empty-new" type="button">+ New Invoice</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ EDITOR ============ -->
+  <main id="view-editor" class="view hidden">
+    <div class="editor-toolbar no-print">
+      <button class="btn btn-ghost" id="btn-back" type="button">← Back</button>
+      <div class="toolbar-right">
+        <span class="save-hint" id="save-hint"></span>
+        <select id="inv-status" class="status-select" title="Invoice status">
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="paid">Paid</option>
+        </select>
+        <button class="btn btn-ghost" id="btn-save" type="button">Save</button>
+        <button class="btn btn-accent" id="btn-pdf" type="button">⬇ Download PDF</button>
+      </div>
+    </div>
+
+    <div class="editor-layout">
+      <!-- ---------- FORM ---------- -->
+      <form class="panel form-panel no-print" id="invoice-form" autocomplete="off" onsubmit="return false;">
+
+        <details open class="form-section">
+          <summary>Invoice details</summary>
+          <div class="grid-2">
+            <label>Invoice number <input type="text" id="f-number" placeholder="INV-0001" /></label>
+            <label>Currency
+              <select id="f-currency"></select>
+            </label>
+            <label>Issue date <input type="date" id="f-issue" /></label>
+            <label>Due date <input type="date" id="f-due" /></label>
+          </div>
+        </details>
+
+        <details open class="form-section">
+          <summary>Your business (From)</summary>
+          <div class="grid-2">
+            <label class="span-2">Business / your name <input type="text" id="f-from-name" placeholder="Studio Nova Design" /></label>
+            <label class="span-2">Address <input type="text" id="f-from-address" placeholder="123 Anywhere St., Any City, ST 12345" /></label>
+            <label>Email <input type="email" id="f-from-email" placeholder="hello@yourstudio.com" /></label>
+            <label>Phone <input type="text" id="f-from-phone" placeholder="+1 234 567 890" /></label>
+            <label class="span-2">Website <input type="text" id="f-from-website" placeholder="www.yourstudio.com" /></label>
+            <label class="span-2 logo-row">Logo (optional)
+              <span class="logo-controls">
+                <input type="file" id="f-logo" accept="image/*" />
+                <button type="button" class="btn btn-tiny btn-ghost hidden" id="f-logo-clear">Remove</button>
+              </span>
+            </label>
+          </div>
+        </details>
+
+        <details open class="form-section">
+          <summary>Bill to (Client)</summary>
+          <div class="grid-2">
+            <label class="span-2">Client name <input type="text" id="f-to-name" placeholder="Acme Corp." /></label>
+            <label class="span-2">Address <input type="text" id="f-to-address" placeholder="Client address" /></label>
+            <label>Email <input type="email" id="f-to-email" placeholder="client@company.com" /></label>
+            <label>Phone <input type="text" id="f-to-phone" placeholder="" /></label>
+          </div>
+        </details>
+
+        <details open class="form-section">
+          <summary>Line items</summary>
+          <div id="items-list"></div>
+          <button type="button" class="btn btn-ghost btn-add" id="btn-add-item">+ Add item</button>
+        </details>
+
+        <details open class="form-section">
+          <summary>Totals & adjustments</summary>
+          <div class="grid-2">
+            <label>Discount type
+              <select id="f-discount-type">
+                <option value="none">None</option>
+                <option value="percent">Percent (%)</option>
+                <option value="fixed">Fixed amount</option>
+              </select>
+            </label>
+            <label>Discount value <input type="number" id="f-discount-value" min="0" step="0.01" value="0" /></label>
+            <label>Tax label
+              <input type="text" id="f-tax-label" value="Tax" placeholder="Tax / VAT / GST" />
+            </label>
+            <label>Tax rate (%) <input type="number" id="f-tax-rate" min="0" step="0.01" value="0" /></label>
+            <label>Shipping / other <input type="number" id="f-shipping" min="0" step="0.01" value="0" /></label>
+            <label>Amount already paid <input type="number" id="f-paid" min="0" step="0.01" value="0" /></label>
+          </div>
+        </details>
+
+        <details class="form-section">
+          <summary>Payment & notes</summary>
+          <div class="grid-2">
+            <label>Payment method <input type="text" id="f-pay-method" placeholder="Bank Transfer" /></label>
+            <label>Bank name <input type="text" id="f-bank-name" placeholder="Borcelle Bank" /></label>
+            <label class="span-2">Account number / IBAN / PayPal <input type="text" id="f-account" placeholder="0123 4567 89" /></label>
+            <label class="span-2">Notes <textarea id="f-notes" rows="2" placeholder="Payment due within 14 days. Thank you for your business!"></textarea></label>
+            <label class="span-2">Footer message <input type="text" id="f-thanks" value="THANK YOU!" /></label>
+          </div>
+        </details>
+      </form>
+
+      <!-- ---------- LIVE PREVIEW (matches the beige minimalist template) ---------- -->
+      <div class="panel preview-panel">
+        <div class="paper" id="invoice-paper">
+          <div class="paper-band-top"></div>
+
+          <header class="pv-header">
+            <div class="pv-header-left">
+              <img id="pv-logo" class="pv-logo hidden" alt="Logo" />
+              <h1 class="pv-title">INVOICE</h1>
+            </div>
+            <div class="pv-header-right">
+              <p><span class="pv-lbl">No. Invoice :</span> <span id="pv-number"></span></p>
+              <p><span class="pv-lbl">Date :</span> <span id="pv-issue"></span></p>
+              <p id="pv-due-row"><span class="pv-lbl">Due :</span> <span id="pv-due"></span></p>
+            </div>
+          </header>
+
+          <div class="pv-parties">
+            <div class="pv-from">
+              <p class="pv-name" id="pv-from-name"></p>
+              <p id="pv-from-address"></p>
+            </div>
+            <div class="pv-to">
+              <p class="pv-billto">Bill to :</p>
+              <p class="pv-name" id="pv-to-name"></p>
+              <p id="pv-to-address"></p>
+              <p id="pv-to-contact"></p>
+            </div>
+          </div>
+
+          <table class="pv-table">
+            <thead>
+              <tr>
+                <th class="col-date">Date</th>
+                <th class="col-desc">Item Description</th>
+                <th class="col-price">Price</th>
+                <th class="col-qty">Qty</th>
+                <th class="col-total">Total</th>
+              </tr>
+            </thead>
+            <tbody id="pv-items"></tbody>
+          </table>
+
+          <div class="pv-totals">
+            <div class="pv-totals-lines" id="pv-totals-lines"></div>
+            <div class="pv-grand">
+              <span>Total :</span>
+              <span id="pv-grand"></span>
+            </div>
+            <div class="pv-balance hidden" id="pv-balance-row">
+              <span>Balance due :</span>
+              <span id="pv-balance"></span>
+            </div>
+          </div>
+
+          <div class="pv-bottom">
+            <div class="pv-payment">
+              <p class="pv-pay-title">Payment Method :</p>
+              <p id="pv-pay-method"></p>
+              <p id="pv-bank"></p>
+              <p id="pv-account"></p>
+              <p class="pv-notes" id="pv-notes"></p>
+            </div>
+            <div class="pv-contact">
+              <p id="pv-from-phone"></p>
+              <p id="pv-from-email"></p>
+              <p id="pv-from-website"></p>
+            </div>
+          </div>
+
+          <p class="pv-thanks" id="pv-thanks">THANK YOU!</p>
+          <div class="paper-band-bottom"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer no-print">
+    <p>BillPilot — free invoice maker for freelancers. All data is stored locally in your browser.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
