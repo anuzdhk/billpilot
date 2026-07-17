@@ -21,7 +21,11 @@ It's a static site — no build step.
 python -m http.server 8720
 ```
 
-…or just open `index.html`, or host it on GitHub Pages.
+…or just open `index.html`.
+
+## Deploying
+
+See **[DEPLOY.md](DEPLOY.md)** for a step-by-step guide to hosting BillPilot on Vercel (free, ~2 minutes).
 
 ## Stack
 
